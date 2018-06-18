@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	
+	<!-- 파일 업로드시 multipart 받는 resolver 클래스 -->
+	<beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	<beans:property name="maxUploadSize" value="10485760"></beans:property><!-- 속성 10메가 -->
+	</beans:bean>
+	
+	<beans:bean id="uploadPath" class="java.lang.String"><!-- 경로 -->
+	<beans:constructor-arg value="D:/dev/uploadFiles"><!-- 경로를 하드코딩으로 지정해줌? --></beans:constructor-arg>
+	</beans:bean>
+
+	
+<beans:bean class="com.myin.team25.interceptor.LoginInterceptor" id="loginInterceptor"> </beans:bean>
+<beans:bean class="com.myin.team25.interceptor.AuthInterceptor" id="authInterceptor"> </beans:bean>
+
+<interceptors> <!-- 내부에서 경로 설정하는 부분, 리퀘스트패스 사용 ㄴㄴ -->
+<interceptor>
+<mapping path="/MemberLoginActionController"/>
+<beans:ref bean="loginInterceptor"/>
+</interceptor>
+
+
+<interceptor>
+<mapping path="/MemberModifyController"/>
+<beans:ref bean="authInterceptor"/>
+</interceptor>
+</interceptors>
+
+
+
+
+	<context:component-scan base-package="com.myin.team25.controller" />	
+	
+</beans:beans>

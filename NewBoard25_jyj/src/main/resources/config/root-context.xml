@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.1.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.1.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd">
+
+	<!-- Root Context:  다른 모든 웹 구성 요소가 볼 수있는 공유 리소스를 정의합니다. -->
+
+		<bean id = "db" class = "org.springframework.jdbc.datasource.DriverManagerDataSource">
+			<property name="driverClassName" value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy" /> 
+	        <property name="url" value="jdbc:log4jdbc:oracle:thin://@127.0.0.1:1521:XE" />
+	        <property name="username" value="system" />
+	        <property name="password" value="1111" />			
+		</bean>		
+		 
+		<bean id="transactionManager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="db" /> 
+    	</bean>
+ 
+	    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	        <property name="dataSource" ref="db" /> 
+	        <property name="mapperLocations" value="classpath:mappers/*.xml" />
+	        <property name="configLocation" value="classpath:config/mybatis_config.xml"/>
+	    </bean>
+	 
+	    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+	        <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory" />
+	    </bean>
+   
+  		<!-- component는 서비스, Impl 다 오버로딩 오버라이딩 한것들이 다 적용이됨 -->
+		<context:component-scan base-package="com.myin.team25"><!-- 컴퍼런트를 검색하는 애,컴퍼런트를 사용하는 범위를 알려줌? -->
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/><!-- 이걸 제외하고 다 적용된다. -->
+		</context:component-scan>
+		
+		<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="false" /> <!--기본 형태임(내장 프록시)  AOP  할때 문제가 있을수도있어서 지웠다가 수정-->
+					<!-- 위에 															true 하면 내장 프록시 사용 안하고 cglib 프록시를 사용한다는 뜻임 (web.xml에 추가해줌)
+		<bean id="transactionManager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        이걸 사용하기 위해서 transaction-manager="transactionManager" 이걸 써줌 id 값이 같아야댐
+			트렌젝션 어노테이션을 사용하기 위해 써줘야함		 -->
+		
+		<aop:aspectj-autoproxy></aop:aspectj-autoproxy><!-- aop 사용 -->
+		
+		
+</beans>

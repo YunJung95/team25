@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myin.team25.persistence.BoardService_Mapper">
+
+
+<sql id="search">    
+	    <if test="searchType != null and searchType.equals('writer')">	
+			 and  writer like '%'||#{keyword}||'%'
+		</if>	
+		<if test="searchType != null and searchType.equals('subject')">	
+			 and  subject like '%'||#{keyword}||'%'
+		</if> 
+    </sql> 
+<select id="SelectBoardOne" parameterType="Integer" resultType="bvo">
+select * from NewBoard25 where del_yn='N' and bbidx=#{bbidx}
+</select>
+
+<select id="SelectBoardAll" parameterType="scri" resultType="bvo">
+<![CDATA[select C.* from (
+		select B.* from (
+			select Row_number() over(order by oidx desc,updown,bbidx) rn, A.*
+			from NewBoard25 A where del_yn='N' 
+		]]>	
+			
+		
+<include refid="search"></include>		
+	<![CDATA[
+		) B
+		where B.rn <= #{pageEnd}) C
+	where C.rn >= #{pageStart}
+	]]>
+</select>
+
+
+
+
+<update id="deleteBoard" parameterType="HashMap">
+update NewBoard25 set del_yn='Y', modifyday=sysdate, ip=#{ip} where bbidx=#{bbidx} and membermidx=#{midx} and password=#{password}
+</update>
+
+<insert id="insertBoard" parameterType="bvo">
+insert into NewBoard25(bbidx,oidx,updown,leftright,memberMidx,subject,content,writer,password,writeday,modifyday,ip,del_yn,filename) 
+values(seq_bbidx.nextval,seq_bbidx.nextval,0,0,#{memberMidx},#{subject},#{content},#{writer},#{password},sysdate,null,#{ip},default,#{filename})
+</insert>
+
+<update id="updateBoard" parameterType="HashMap">
+update NewBoard25 set subject=#{subject}, content=#{content}, ip=#{ip}, modifyday=sysdate where bbidx=#{bbidx} and membermidx=#{midx} and password=#{password}
+</update>
+
+<update id="replyUpdateBoard" parameterType="Integer">
+update NewBoard25 set updown = updown+1 where oidx=#{0} and updown>#{1}
+</update>
+
+<insert id="replyInsertBoard" parameterType="HashMap">
+insert into NewBoard25(bbidx,oidx,updown,leftright,memberMidx,subject,content,writer,password,writeday,modifyday,ip,del_yn) values(seq_bbidx.nextval,#{oidx},#{updown}+1,#{leftright}+1,#{midx},#{subject},#{content},#{writer},#{password},sysdate,null,#{memberIp},default)
+</insert>
+
+<select id="totalRecordCount" parameterType="scri" resultType="Integer">
+select count(*) from NEWBOARD25 where del_yn='N' 
+<include refid="search"></include>	
+</select>
+
+<select id="boardMemberInfo" parameterType="scri" resultType="HashMap">
+SELECT (2018-(19||SUBSTR(m.memberJumin,0,2))+1) as age, new.ip as ip, m.membername as membername, new.bbidx as bbidx
+FROM member25 m, newboard25 new 
+where m.MEMBERMIDX = new.MEMBERMIDX order by bbidx
+</select>
+</mapper>
