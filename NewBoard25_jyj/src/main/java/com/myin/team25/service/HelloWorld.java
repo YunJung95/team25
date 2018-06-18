@@ -6,7 +6,7 @@ public class HelloWorld {
 
 
 		System.out.println("GIT연습");
-
+		System.out.println("지이이이인짜아아아아  GIT연습");
 	}
 
 }
