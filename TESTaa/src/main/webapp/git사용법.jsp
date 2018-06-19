@@ -10,7 +10,7 @@
 
 1. 각자 연동을 잘한다.
 2. 초대를 한다 (메일로 승인)
-3. 한쪽에서 프로젝트 share (프로젝트 없으면 먼저 올린다.)
+3. 한쪽에서 프로젝트 share (프로젝트 없으면 먼저 올린다. 없는쪽은 프로젝트 import)
 4. 파일을 올린다 commit
 	Unstaged Changes -> Staged Changes로 옮기고
 	Commit Message 작성
